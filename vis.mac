@@ -1,0 +1,46 @@
+/vis/verbose 2
+/tracking/verbose 0
+/vis/scene/create
+
+#/vis/open OGL 600x600-0+0
+
+#/vis/viewer/set/autoRefresh false
+#/vis/verbose errors
+#/vis/open VRML1FILE
+#/vis/open VRML2FILE
+#/vis/viewer/flush
+#/vis/drawVolume
+
+/vis/viewer/set/viewpointThetaPhi 90. 180.
+
+/vis/scene/add/trajectories
+/vis/scene/add/hits
+/vis/modeling/trajectories/create/drawByCharge
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+
+/vis/scene/endOfEventAction accumulate
+
+#/vis/viewer/set/autoRefresh true
+#/vis/verbose warnings
+
+#/gps/source/intensity 1
+#/gps/particle ion
+#/gps/ion 79 197 26 0
+#/gps/pos/type Plane
+#/gps/pos/shape Ellipse
+#/gps/pos/halfx 5.5 mm
+#/gps/pos/halfy 5.5 mm
+#/gps/pos/halfz 0 mm
+#/gps/ene/type Gauss
+#/gps/ene/mono 1280 MeV
+#/gps/ene/sigma 30 MeV
+
+
+#/gps/pos/centre 0 0 -10 cm
+#/gps/pos/radius 10.0 mm
+#/gps/pos/halfz 0 mm
+#/gps/direction 0 0 1
+#/gps/verbose 2
+/run/beamOn 1000 #!!!!!!!!!!!!!число фотонов  
+
