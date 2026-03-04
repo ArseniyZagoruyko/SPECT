@@ -108,14 +108,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4Material* SiPM = new G4Material("SiPM", density1 = 2.33 * g / cm3, nelements1 = 1);
     SiPM->AddElement(Si, natoms=1);
 
-    distance1 = 54* mm;
-    distance2 = 89 * mm;
+    distance1 = 102* mm;
+    distance2 = 135 * mm;
 
     ConstructScintillator();
     
     // ConstructSphere();
     
-    // ConstructWaterPhantom();
+    ConstructWaterPhantom();
 
     // поворот для тонких объемов
     G4RotationMatrix* rotThin = new G4RotationMatrix();
@@ -188,8 +188,8 @@ void DetectorConstruction::ConstructSDandField()
 
 void DetectorConstruction::ConstructWaterPhantom() 
 {
-   G4double phantomSize = 3*cm; 
-   G4Box* phantomSolid = new G4Box("Phantom", phantomSize/2, phantomSize/2, phantomSize/2);
+   G4double phantomSize = 5*cm; 
+   G4Box* phantomSolid = new G4Box("Phantom", phantomSize/2, 99*mm, phantomSize/2);
 
    G4LogicalVolume* phantomLogic = new G4LogicalVolume(phantomSolid, water_mat, "PhantomLogic");
 

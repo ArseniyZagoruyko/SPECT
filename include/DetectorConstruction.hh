@@ -10,7 +10,6 @@
 #include <G4SDManager.hh>
 #include "SensitiveDetector.hh"
 
-class SteppingAction;
 
 
 class DetectorConstruction : public G4VUserDetectorConstruction
@@ -43,16 +42,22 @@ private:
     SensitiveDetector* sensitiveDetector1;
     SensitiveDetector* sensitiveDetector2;
     SensitiveDetector* sensitiveDetector3;
+    SensitiveDetector* sensitiveDetector4;
 
     G4LogicalVolume* thinVolumeLogical1;
     G4LogicalVolume* thinVolumeLogical2;
     G4LogicalVolume* radiatorLogical1;
     G4LogicalVolume* radiatorLogical2;
+    G4LogicalVolume* thinVolumeLogical3;
+    G4LogicalVolume* thinVolumeLogical4;
+    G4LogicalVolume* radiatorLogical3;
+    G4LogicalVolume* radiatorLogical4;
+    G4LogicalVolume* PWB_log1;
+    G4LogicalVolume* PWB_log2;
+    G4LogicalVolume* PWB_log3;
+    G4LogicalVolume* PWB_log4;
     G4LogicalVolume* log_Sphere;
 
-
-
-    // G4SDManager для чувствительных детекторов 
     G4SDManager* SDman;
 
 public:
