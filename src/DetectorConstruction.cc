@@ -47,6 +47,7 @@
 #include "G4RegionStore.hh"
 
 
+
 DetectorConstruction::DetectorConstruction() : G4VUserDetectorConstruction()
 {
 
@@ -105,6 +106,34 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4int nelements1, natoms, nelements2;
 
     G4Element* Si = new G4Element("Silicium", "Si", z1 = 14, a2 = 28.086 * g / mole);
+    G4Element* O = new G4Element("Oxygenium", "O", z1 = 8, a2 = 16.00 * g / mole);
+    G4Element* Alu = new G4Element("Aluminium", "Al", z1 = 13, a2 = 26.98 * g / mole);
+    G4Element* Ca = new G4Element("Calcium", "Ca", z1 = 20, a2 = 40.08 * g / mole);
+    G4Element* Mg = new G4Element("Magnesium", "Mg", z1 = 12, a2 = 24.305 * g / mole);
+    G4Element* Na = new G4Element("Natrium", "Na", z1 = 11, a2 = 22.99 * g / mole);
+    G4Element* C = new G4Element("Carbonium", "C", z1 = 6, a2 = 12.01 * g / mole);
+    G4Element* H = new G4Element("Hydrogenium", "H", z1 = 1, a2 = 1.008 * g / mole);
+
+    // Glass Fiber
+    G4Material* GlassFiber = new G4Material("GlassFiber", density1 = 2.50 * g / cm3, nelements1 = 5);
+    GlassFiber->AddElement(Si, natoms = 1);  // SiO2
+    GlassFiber->AddElement(O, natoms = 2);
+    GlassFiber->AddElement(Alu, natoms = 1); // Al2O3
+    GlassFiber->AddElement(Ca, natoms = 1);  // CaO
+    GlassFiber->AddElement(Mg, natoms = 1);  // MgO
+
+    // Epoxy Resin
+    G4Material* EpoxyResin = new G4Material("EpoxyResin", density1 = 1.20 * g / cm3, nelements1 = 3);
+    EpoxyResin->AddElement(C, natoms = 21);  
+    EpoxyResin->AddElement(H, natoms = 25);  
+    EpoxyResin->AddElement(O, natoms = 5);   
+
+    //  PWB 
+    G4Material* PWB = new G4Material("PWB", density1 = 1.80 * g / cm3, nelements1 = 2);
+    PWB->AddMaterial(GlassFiber, fractionmass = 0.70);  
+    PWB->AddMaterial(EpoxyResin, fractionmass = 0.30); 
+
+    //sipm
     G4Material* SiPM = new G4Material("SiPM", density1 = 2.33 * g / cm3, nelements1 = 1);
     SiPM->AddElement(Si, natoms=1);
 
@@ -116,14 +145,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // ConstructSphere();
     
     ConstructWaterPhantom();
+    
+    G4RotationMatrix* rotThinY = new G4RotationMatrix();
+    rotThinY->rotateY(90.0 * deg);
 
-    // поворот для тонких объемов
-    G4RotationMatrix* rotThin = new G4RotationMatrix();
-    rotThin->rotateY(90.0 * deg);
+    G4RotationMatrix* rotThinZ = new G4RotationMatrix();
+    rotThinZ->rotateZ(90.0 * deg);
 
     // размеры тонких объемов
     G4double HightVolume = 50.0 * mm;
-    G4double ThinVolume = 0.1 * mm;
+    G4double ThinVolume = 0.15 * mm;
     G4double LenghtVolume = 50.0 * mm;
 
     // тонкий объем 1
@@ -133,7 +164,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4VisAttributes* visAttributes1 = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0));
     thinVolumeLogical1->SetVisAttributes(visAttributes1);
 
-    new G4PVPlacement(rotThin, G4ThreeVector(0, distance1 + radiatorThin1/2 + ThinVolume/2, 0), thinVolumeLogical1, "ThinVolume1_phys", log_world, false, 0);
+    new G4PVPlacement(rotThinY, G4ThreeVector(0, distance1 + radiatorThin1/2 + ThinVolume/2, 0), thinVolumeLogical1, "ThinVolume1_phys", log_world, false, 0);
 
     // тонкий объем 2
     G4Box* thinVolumeSolid2 = new G4Box("ThinVolume2", HightVolume/2, ThinVolume / 2, LenghtVolume/2);
@@ -142,8 +173,62 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4VisAttributes* visAttributes2 = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0));
     thinVolumeLogical2->SetVisAttributes(visAttributes2);
 
-    new G4PVPlacement(rotThin, G4ThreeVector(0, distance2 + radiatorThin2/2 , 0), thinVolumeLogical2, "ThinVolume2_phys", log_world, false, 0);
+    new G4PVPlacement(rotThinY, G4ThreeVector(0, distance2 + radiatorThin2/2 + ThinVolume/2, 0), thinVolumeLogical2, "ThinVolume2_phys", log_world, false, 0);
 
+    // тонкий объём 3
+    G4Box* thinVolumeSolid3 = new G4Box("ThinVolume3", HightVolume/2, ThinVolume / 2, LenghtVolume/2);
+    thinVolumeLogical3 = new G4LogicalVolume(thinVolumeSolid3, SiPM, "ThinVolume3_log");
+
+    G4VisAttributes* visAttributes3 = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0));
+    thinVolumeLogical3->SetVisAttributes(visAttributes3);
+
+    // new G4PVPlacement(rotThinZ, G4ThreeVector(distance1 + radiatorThin1/2 + ThinVolume/2, 0, 0), thinVolumeLogical3, "ThinVolume3_phys", log_world, false, 0);
+
+    // тонкий объём 4
+    G4Box* thinVolumeSolid4 = new G4Box("ThinVolume4", HightVolume/2, ThinVolume / 2, LenghtVolume/2);
+    thinVolumeLogical4 = new G4LogicalVolume(thinVolumeSolid4, SiPM, "ThinVolume4_log");
+
+    G4VisAttributes* visAttributes4 = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0));
+    thinVolumeLogical4->SetVisAttributes(visAttributes4);
+
+    // new G4PVPlacement(rotThinZ, G4ThreeVector(distance2 + radiatorThin2/2 + ThinVolume/2,0 , 0), thinVolumeLogical4, "ThinVolume4_phys", log_world, false, 0);
+
+
+    //PWB
+    G4double ThinPWB = 1.2*mm;
+
+    //1
+    G4Box* PWB1 = new G4Box("PWB1", HightVolume/2, ThinPWB / 2, LenghtVolume/2);
+    PWB_log1 = new G4LogicalVolume(PWB1, PWB, "PWB1_log");
+
+    G4VisAttributes* visAttributes5 = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0));
+    PWB_log1->SetVisAttributes(visAttributes5);
+
+    new G4PVPlacement(rotThinY, G4ThreeVector(0, distance1 + radiatorThin1/2 + ThinVolume + ThinPWB/2, 0), PWB_log1, "PWB1_phys", log_world, false, 0);
+
+    // 2
+    G4Box* PWB2 = new G4Box("PWB2", HightVolume/2, ThinPWB / 2, LenghtVolume/2);
+    PWB_log2 = new G4LogicalVolume(PWB2, PWB, "PWB2_log");
+
+    PWB_log2->SetVisAttributes(visAttributes5);
+
+    new G4PVPlacement(rotThinY, G4ThreeVector(0, distance2 + radiatorThin2/2 + ThinVolume + ThinPWB/2, 0), PWB_log2, "PWB2_phys", log_world, false, 0);
+
+    // 3
+    G4Box* PWB3 = new G4Box("PWB3", HightVolume/2, ThinPWB / 2, LenghtVolume/2);
+    PWB_log3 = new G4LogicalVolume(PWB3, PWB, "PWB3_log");
+
+    PWB_log3->SetVisAttributes(visAttributes5);
+
+    // new G4PVPlacement(rotThinZ, G4ThreeVector(distance1 + radiatorThin1/2 + ThinVolume + ThinPWB/2, 0, 0), PWB_log3, "PWB3_phys", log_world, false, 0);
+
+    // 4
+    G4Box* PWB4 = new G4Box("PWB4", HightVolume/2, ThinPWB / 2, LenghtVolume/2);
+    PWB_log4 = new G4LogicalVolume(PWB4, PWB, "PWB4_log");
+
+    PWB_log4->SetVisAttributes(visAttributes5);
+
+    // new G4PVPlacement(rotThinZ, G4ThreeVector(distance2 + radiatorThin2/2 + ThinVolume + ThinPWB/2, 0, 0), PWB_log4, "PWB4_phys", log_world, false, 0);
 
 
     log_world->SetVisAttributes(G4VisAttributes::GetInvisible());
@@ -166,16 +251,24 @@ void DetectorConstruction::ConstructSphere()
 
 void DetectorConstruction::ConstructSDandField()
 {
-    // G4SDManager* SDman = G4SDManager::GetSDMpointer();
+    G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
-    // //чувствительные детекторы
-    // sensitiveDetector1 = new SensitiveDetector("SensitiveDetector1", 1);
-    // SDman->AddNewDetector(sensitiveDetector1);
-    // thinVolumeLogical1->SetSensitiveDetector(sensitiveDetector1);
+    //чувствительные детекторы
+    sensitiveDetector1 = new SensitiveDetector("SensitiveDetector1", 1);
+    SDman->AddNewDetector(sensitiveDetector1);
+    thinVolumeLogical1->SetSensitiveDetector(sensitiveDetector1);
 
-    // sensitiveDetector2 = new SensitiveDetector("SensitiveDetector2", 2);
-    // SDman->AddNewDetector(sensitiveDetector2);
-    // thinVolumeLogical2->SetSensitiveDetector(sensitiveDetector2);
+    sensitiveDetector2 = new SensitiveDetector("SensitiveDetector2", 2);
+    SDman->AddNewDetector(sensitiveDetector2);
+    thinVolumeLogical2->SetSensitiveDetector(sensitiveDetector2);
+
+    sensitiveDetector3 = new SensitiveDetector("SensitiveDetector3", 3);
+    SDman->AddNewDetector(sensitiveDetector3);
+    thinVolumeLogical3->SetSensitiveDetector(sensitiveDetector3);
+
+    sensitiveDetector4 = new SensitiveDetector("SensitiveDetector4", 4);
+    SDman->AddNewDetector(sensitiveDetector4);
+    thinVolumeLogical4->SetSensitiveDetector(sensitiveDetector4);
 
 //    sensitiveDetector3 = new SensitiveDetector("SensitiveDetector3", 3);
 //    SDman -> AddNewDetector(sensitiveDetector3);
@@ -188,15 +281,15 @@ void DetectorConstruction::ConstructSDandField()
 
 void DetectorConstruction::ConstructWaterPhantom() 
 {
-   G4double phantomSize = 5*cm; 
-   G4Box* phantomSolid = new G4Box("Phantom", phantomSize/2, 99*mm, phantomSize/2);
+   G4double phantomSize = 200*mm; 
+   G4Box* phantomSolid = new G4Box("Phantom", 25*mm, phantomSize/2-4*mm, 25*mm);
 
    G4LogicalVolume* phantomLogic = new G4LogicalVolume(phantomSolid, water_mat, "PhantomLogic");
 
    G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0)); 
    phantomLogic->SetVisAttributes(visAttributes);
 
-   new G4PVPlacement(0, G4ThreeVector(0,0*cm,0), phantomLogic, "Phantom", log_world, false, 0, true);
+   new G4PVPlacement(0, G4ThreeVector(0,0,0), phantomLogic, "Phantom", log_world, false, 0, true);
 }
 
 void DetectorConstruction::ConstructScintillator()
@@ -241,9 +334,14 @@ void DetectorConstruction::ConstructScintillator()
     SiO2->AddElement(O, natoms=2);
 
     // Material SrI2 
-    G4Material* SrI2 = new G4Material("SrI2", 4.2*g/cm3, 2);
+    G4Material* SrI2 = new G4Material("SrI2", density1 = 4.55*g/cm3, nelements1 = 2);
     SrI2->AddElement(Sr, 1);
     SrI2->AddElement(I, 2);
+
+    // Material NaI
+    G4Material* NaI = new G4Material("NaI",density1 = 3.67*g/cm3, nelements1 = 2);
+    NaI->AddElement(Na, 1);
+    NaI -> AddElement(I, 1);
 
 
     // //Material PbF2
@@ -277,10 +375,9 @@ void DetectorConstruction::ConstructScintillator()
 
 
 
-    // Number of entries in the property arrays
+
     const G4int LGNUMENTRIES = 30;
 
-    // Photon energy array
     G4double SrI2_PP[LGNUMENTRIES] = {
         2.50*eV, 2.53*eV, 2.55*eV, 2.58*eV,
         2.60*eV, 2.63*eV, 2.66*eV, 2.68*eV,
@@ -292,19 +389,17 @@ void DetectorConstruction::ConstructScintillator()
         3.22*eV, 3.25*eV
     };
 
-    // Normalized scintillation spectrum
     G4double SrI2_FAST[LGNUMENTRIES] = {
         0.0, 0.26, 0.30, 0.32,
         0.36, 0.41, 0.45, 0.51,
         0.55, 0.61, 0.67, 0.73,
-        0.85, 1.0, 1.0, 0.86,
+        0.85, 1.0, 0.9, 0.86,
         0.82, 0.75, 0.68, 0.61,
         0.54, 0.50, 0.47, 0.44,
         0.39, 0.33, 0.28, 0.17,
         0.0
     };
 
-    // Absorption length (example values, replace with actual values)
     G4double SrI2_ABS[LGNUMENTRIES] = {
         1.0*m, 1.0*m, 1.0*m, 1.0*m,
         1.0*m, 1.0*m, 1.0*m, 1.0*m,
@@ -316,7 +411,7 @@ void DetectorConstruction::ConstructScintillator()
         1.0*m, 1.0*m
     };
 
-    // Refractive index
+
     G4double SrI2_RINDEX[LGNUMENTRIES] = {
         1.85, 1.85, 1.85, 1.85,
         1.85, 1.85, 1.85, 1.85,
@@ -328,18 +423,81 @@ void DetectorConstruction::ConstructScintillator()
         1.85, 1.85
     };
 
-    // Create material properties table
+
     G4MaterialPropertiesTable* SrI2_MPT = new G4MaterialPropertiesTable();
 
     SrI2_MPT->AddProperty("RINDEX", SrI2_PP, SrI2_RINDEX, LGNUMENTRIES);
     SrI2_MPT->AddProperty("ABSLENGTH", SrI2_PP, SrI2_ABS, LGNUMENTRIES);
     SrI2_MPT->AddProperty("SCINTILLATIONCOMPONENT1", SrI2_PP, SrI2_FAST, LGNUMENTRIES);//спекрт высвечивания
-    SrI2_MPT->AddConstProperty("SCINTILLATIONYIELD", 90000. / MeV);//световыход
+    SrI2_MPT->AddConstProperty("SCINTILLATIONYIELD", 115 / keV);//световыход
     SrI2_MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
     SrI2_MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 1.2 * us);//времявысвечивания
     SrI2_MPT->AddConstProperty("SCINTILLATIONYIELD1",1.0);
 
     SrI2->SetMaterialPropertiesTable(SrI2_MPT);//применение свойств сцинтиллятора к материалу
+
+
+
+
+    // Scint prop NaI
+    const G4int LGNUMENTRIES2 = 30;
+
+    G4double NaI_PP[LGNUMENTRIES2] = {
+        1.96*eV, 1.99*eV, 2.03*eV, 2.06*eV,
+        2.1*eV, 2.13*eV, 2.17*eV, 2.21*eV,
+        2.27*eV, 2.29*eV, 2.33*eV, 2.38*eV,
+        2.43*eV, 2.48*eV, 2.53*eV, 2.58*eV,
+        2.63*eV, 2.69*eV, 2.75*eV, 2.81*eV,
+        2.88*eV, 2.95*eV, 3.02*eV, 3.09*eV,
+        3.17*eV, 3.26*eV, 3.35*eV, 3.44*eV,
+        3.54*eV, 3.64*eV
+    };
+
+    G4double NaI_FAST[LGNUMENTRIES2] = {
+        0.0, 0.26, 0.30, 0.32,
+        0.36, 0.41, 0.45, 0.51,
+        0.55, 0.61, 0.67, 0.73,
+        0.85, 1.0, 0.9, 0.86,
+        0.82, 0.75, 0.68, 0.61,
+        0.54, 0.50, 0.47, 0.44,
+        0.39, 0.33, 0.28, 0.17,
+        0.0
+    };
+
+    G4double NaI_ABS[LGNUMENTRIES2] = {
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m, 1.0*m, 1.0*m,
+        1.0*m, 1.0*m
+    };
+
+
+    G4double NaI_RINDEX[LGNUMENTRIES2] = {
+        1.778, 1.78, 1.781, 1.783,
+        1.785, 1.787, 1.79, 1.792,
+        1.794, 1.797, 1.8, 1.803,
+        1.806, 1.81, 1.813, 1.817,
+        1.82, 1.826, 1.831, 1.84,
+        1.846, 1.851, 1.857, 1.860,
+        1.864, 1.872, 1.878, 1.879,
+        1.882, 1.891
+    };
+
+    G4MaterialPropertiesTable* NaI_MPT = new G4MaterialPropertiesTable();
+
+    NaI_MPT->AddProperty("RINDEX", NaI_PP, NaI_RINDEX, LGNUMENTRIES2);
+    NaI_MPT->AddProperty("ABSLENGTH", NaI_PP, NaI_ABS, LGNUMENTRIES2);
+    NaI_MPT->AddProperty("SCINTILLATIONCOMPONENT1", NaI_PP, NaI_FAST, LGNUMENTRIES2);//спекрт высвечивания
+    NaI_MPT->AddConstProperty("SCINTILLATIONYIELD", 38000 / MeV);//световыход
+    NaI_MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
+    NaI_MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 40 * us);//времявысвечивания
+    NaI_MPT->AddConstProperty("SCINTILLATIONYIELD1",1.0);
+
+    NaI->SetMaterialPropertiesTable(NaI_MPT);//применение свойств сцинтиллятора к материалу
 
     // //reflective prop for Al
     // const G4int Al_NUMENTRIES = 15;
@@ -360,7 +518,7 @@ void DetectorConstruction::ConstructScintillator()
 
     // размеры
     radiatorThin1 = 4 * mm;
-    radiatorThin2 = 5 * mm;
+    radiatorThin2 = 6 * mm;
     radiatorLength = 50 * mm;
     radiatorHeight = 50 * mm;
 
@@ -368,17 +526,23 @@ void DetectorConstruction::ConstructScintillator()
     // радиатор
     G4Box* radiatorSolid1 = new G4Box("radiator1", radiatorHeight/2, radiatorThin1 / 2, radiatorLength/2 );
     G4Box* radiatorSolid2 = new G4Box("radiator2", radiatorHeight/2, radiatorThin2 / 2, radiatorLength/2);
+    G4Box* radiatorSolid3 = new G4Box("radiator3", radiatorHeight/2, radiatorThin1 / 2, radiatorLength/2 );
+    G4Box* radiatorSolid4 = new G4Box("radiator4", radiatorHeight/2, radiatorThin2 / 2, radiatorLength/2);
 
 
 
 
     radiatorLogical1 = new G4LogicalVolume(radiatorSolid1, SrI2 , "radiatorlog1");
     radiatorLogical2 = new G4LogicalVolume(radiatorSolid2, SrI2 , "radiatorlog2");
+    radiatorLogical3 = new G4LogicalVolume(radiatorSolid3, SrI2 , "radiatorlog3");
+    radiatorLogical4 = new G4LogicalVolume(radiatorSolid4, SrI2 , "radiatorlog4");
 
     G4VisAttributes* radiatorVisAttributes = new G4VisAttributes(G4Colour(0.8, 0.8, 0.8));
     radiatorVisAttributes->SetVisibility(true);
     radiatorLogical1->SetVisAttributes(radiatorVisAttributes);
     radiatorLogical2->SetVisAttributes(radiatorVisAttributes);
+    radiatorLogical3->SetVisAttributes(radiatorVisAttributes);
+    radiatorLogical4->SetVisAttributes(radiatorVisAttributes);
 
     
 
@@ -391,11 +555,17 @@ void DetectorConstruction::ConstructScintillator()
     // radiatorRegion->AddRootLogicalVolume(radiatorLogical2);
 
     // поворот радиатора
-    G4RotationMatrix* rot = new G4RotationMatrix();
-    rot->rotateY(90.0 * deg);
+    G4RotationMatrix* rotY = new G4RotationMatrix();
+    rotY->rotateY(90.0 * deg);
 
-    G4VPhysicalVolume* Radiator1 = new G4PVPlacement(rot, G4ThreeVector(0, distance1, 0), radiatorLogical1 , "radiator1_phys", log_world, false, 0);
-    G4VPhysicalVolume* Radiator2 = new G4PVPlacement(rot, G4ThreeVector(0, distance2, 0), radiatorLogical2 , "radiator2_phys", log_world, false, 0);
+    G4RotationMatrix* rotZ = new G4RotationMatrix();
+    rotZ->rotateZ(90.0 * deg);
+
+    G4VPhysicalVolume* Radiator1 = new G4PVPlacement(rotY, G4ThreeVector(0, distance1, 0), radiatorLogical1 , "radiator1_phys", log_world, false, 0);
+    G4VPhysicalVolume* Radiator2 = new G4PVPlacement(rotY, G4ThreeVector(0, distance2, 0), radiatorLogical2 , "radiator2_phys", log_world, false, 0);
+
+    // G4VPhysicalVolume* Radiator3 = new G4PVPlacement(rotZ, G4ThreeVector(distance1, 0, 0), radiatorLogical3 , "radiator3_phys", log_world, false, 0);
+    // G4VPhysicalVolume* Radiator4 = new G4PVPlacement(rotZ, G4ThreeVector(distance2, 0, 0), radiatorLogical4 , "radiator4_phys", log_world, false, 0);
 
 
 
