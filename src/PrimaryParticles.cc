@@ -122,8 +122,8 @@ void PrimaryParticles::GeneratePrimaries(G4Event* event)
 {
     G4double phi_center = M_PI / 2.0;
     G4double theta_center = M_PI / 2.0; 
-    G4double delta_phi = 48.0 * deg; 
-    G4double delta_theta = 48.0 * deg; 
+    G4double delta_phi = 28.07 * deg; 
+    G4double delta_theta = 28.07 * deg; 
 
 
     G4double phi = phi_center + (G4UniformRand() - 0.5) * delta_phi;

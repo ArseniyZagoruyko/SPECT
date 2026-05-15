@@ -16,8 +16,8 @@ using namespace std;
 
 vector<float> R1(100000000, 0.0);
 vector<float> R2(100000000, 0.0);
-vector<float> T1(100000000, 0.0);
-vector<float> T2(100000000, 0.0);
+// vector<float> T1(100000000, 0.0);
+// vector<float> T2(100000000, 0.0);
 
 vector<pair<int, int>> photonCoords1;
 vector<pair<int, int>> photonCoords2;
@@ -44,15 +44,15 @@ SteppingAction::SteppingAction(DetectorConstruction* detectorConstruction)
         G4cerr << "Error opening GammaCoordinates.txt!" << G4endl;
     }
 
-    outputFile3.open("deposits_SecondDet.txt", ios::app);
-    if (!outputFile3.is_open()) {
-        G4cerr << "Error opening deposits.txt!" << G4endl;
-    }
+    // outputFile3.open("deposits_SecondDet.txt", ios::app);
+    // if (!outputFile3.is_open()) {
+    //     G4cerr << "Error opening deposits.txt!" << G4endl;
+    // }
 
-    outputFile4.open("GammaCoordinates_SecondDet.txt", ios::app);
-    if (!outputFile4.is_open()) {
-        G4cerr << "Error opening GammaCoordinates.txt!" << G4endl;
-    }
+    // outputFile4.open("GammaCoordinates_SecondDet.txt", ios::app);
+    // if (!outputFile4.is_open()) {
+    //     G4cerr << "Error opening GammaCoordinates.txt!" << G4endl;
+    // }
 
     // backscatterFile.open("backscattering_events.txt", ios::app);
     // if (!backscatterFile.is_open()) {
@@ -65,25 +65,25 @@ SteppingAction::SteppingAction(DetectorConstruction* detectorConstruction)
     // }
 
 
-    OpenNewBinaryFile();
+    // OpenNewBinaryFile();
 }
 
-void SteppingAction::OpenNewBinaryFile() {
+// void SteppingAction::OpenNewBinaryFile() {
 
-    if (binaryOutputFile.is_open()) {
-        binaryOutputFile.close();
-    }
+//     if (binaryOutputFile.is_open()) {
+//         binaryOutputFile.close();
+//     }
 
 
-    string fileName = "photon_coordinates_" + to_string(fileIndex) + ".bin";
-    binaryOutputFile.open(fileName, ios::binary | ios::app);
-    if (!binaryOutputFile.is_open()) {
-        G4cerr << "Error opening " << fileName << "!" << G4endl;
-    }
+//     string fileName = "photon_coordinates_" + to_string(fileIndex) + ".bin";
+//     binaryOutputFile.open(fileName, ios::binary | ios::app);
+//     if (!binaryOutputFile.is_open()) {
+//         G4cerr << "Error opening " << fileName << "!" << G4endl;
+//     }
 
-    // Сбрасываем счетчик событий
-    eventsInCurrentFile = 0;
-}
+//     // Сбрасываем счетчик событий
+//     eventsInCurrentFile = 0;
+// }
 
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
@@ -112,6 +112,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
 
     // ////Backscattering
+    
     // if (particleName == "gamma") {
     //     if (vname.contains("radiator1")) {
     //         interactionHistory[eventID].push_back("radiator1");
@@ -129,8 +130,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     //     }
     // }
 
-
-
     // ////
 
 
@@ -145,13 +144,13 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
         R2[eventID] += energyDeposit;
     }
 
-    if (vname.contains("radiator3") && track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) {
-        T1[eventID] += energyDeposit;
-    }
+    // if (vname.contains("radiator3") && track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) {
+    //     T1[eventID] += energyDeposit;
+    // }
 
-    if (vname.contains("radiator4") && track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) {
-        T2[eventID] += energyDeposit;
-    }
+    // if (vname.contains("radiator4") && track->GetDefinition() != G4OpticalPhoton::OpticalPhotonDefinition()) {
+    //     T2[eventID] += energyDeposit;
+    // }
 
 
 
@@ -181,27 +180,27 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
     // потом доделать для опт фотонов на 2 паре детекторов 
 
-    if (vname.contains("radiator1") && position.y() == 104 && particleName == "opticalphoton") {
-        double Px1 = position.x() / mm;
-        double Pz1 = position.z() / mm;
+    // if (vname.contains("radiator1") && position.y() == 104 && particleName == "opticalphoton") {
+    //     double Px1 = position.x() / mm;
+    //     double Pz1 = position.z() / mm;
 
-        double cellSize = 5.0; 
-        Px1 = round(Px1 / cellSize) * cellSize;
-        Pz1 = round(Pz1 / cellSize) * cellSize;
+    //     double cellSize = 5.0; 
+    //     Px1 = round(Px1 / cellSize) * cellSize;
+    //     Pz1 = round(Pz1 / cellSize) * cellSize;
 
-        photonCoords1.push_back(make_pair(Px1, Pz1));
-    }
+    //     photonCoords1.push_back(make_pair(Px1, Pz1));
+    // }
 
-    if (vname.contains("radiator2") && position.y() == 138 && particleName == "opticalphoton") {
-        double Px2 = position.x() / mm;
-        double Pz2 = position.z() / mm;
+    // if (vname.contains("radiator2") && position.y() == 138 && particleName == "opticalphoton") {
+    //     double Px2 = position.x() / mm;
+    //     double Pz2 = position.z() / mm;
 
-        double cellSize = 5.0; 
-        Px2 = round(Px2 / cellSize) * cellSize;
-        Pz2 = round(Pz2 / cellSize) * cellSize;
+    //     double cellSize = 5.0; 
+    //     Px2 = round(Px2 / cellSize) * cellSize;
+    //     Pz2 = round(Pz2 / cellSize) * cellSize;
 
-        photonCoords2.push_back(make_pair(Px2, Pz2));
-    }
+    //     photonCoords2.push_back(make_pair(Px2, Pz2));
+    // }
 
 
     // if (vname.contains("phys") && particleName == "opticalphoton")
@@ -230,44 +229,45 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
                         << "\t" << Rx2[eventID - 1] << "\t" << Ry2[eventID - 1] << "\t" << Rz2[eventID - 1] << endl;
             outputFile1 << eventID << "\t" << R1[eventID - 1] << "\t" << R2[eventID - 1] << endl;
 
+            //Запись оптических фотонов
 
+            // for (const auto& coord : photonCoords1) {
+            //     int radiatorID = 1;
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&eventID), sizeof(int));       // Event ID
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&radiatorID), sizeof(int));    // Radiator ID
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&coord.first), sizeof(double)); // X coordinate
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&coord.second), sizeof(double)); // Z coordinate
+            // }
 
-            for (const auto& coord : photonCoords1) {
-                int radiatorID = 1;
-                binaryOutputFile.write(reinterpret_cast<const char*>(&eventID), sizeof(int));       // Event ID
-                binaryOutputFile.write(reinterpret_cast<const char*>(&radiatorID), sizeof(int));    // Radiator ID
-                binaryOutputFile.write(reinterpret_cast<const char*>(&coord.first), sizeof(double)); // X coordinate
-                binaryOutputFile.write(reinterpret_cast<const char*>(&coord.second), sizeof(double)); // Z coordinate
-            }
+            // for (const auto& coord : photonCoords2) {
+            //     int radiatorID = 2;
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&eventID), sizeof(int));       // Event ID
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&radiatorID), sizeof(int));    // Radiator ID
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&coord.first), sizeof(double)); // X coordinate
+            //     binaryOutputFile.write(reinterpret_cast<const char*>(&coord.second), sizeof(double)); // Z coordinate
+            // }
 
-            for (const auto& coord : photonCoords2) {
-                int radiatorID = 2;
-                binaryOutputFile.write(reinterpret_cast<const char*>(&eventID), sizeof(int));       // Event ID
-                binaryOutputFile.write(reinterpret_cast<const char*>(&radiatorID), sizeof(int));    // Radiator ID
-                binaryOutputFile.write(reinterpret_cast<const char*>(&coord.first), sizeof(double)); // X coordinate
-                binaryOutputFile.write(reinterpret_cast<const char*>(&coord.second), sizeof(double)); // Z coordinate
-            }
+            // // Увеличиваем счетчик событий
+            // eventsInCurrentFile++;
 
-            // Увеличиваем счетчик событий
-            eventsInCurrentFile++;
-
-            if (eventsInCurrentFile >= 100) {
-                fileIndex++;
-                OpenNewBinaryFile();
-            }
+            // if (eventsInCurrentFile >= 100) {
+            //     fileIndex++;
+            //     OpenNewBinaryFile();
+            // }
         }
 
         //вторая пара детекторов
-        if ((T1[eventID - 1] * T2[eventID - 1]) != 0) {
+
+        // if ((T1[eventID - 1] * T2[eventID - 1]) != 0) {
 
 
-            outputFile4 << eventID << "\t" << Tx1[eventID - 1] << "\t" << Ty1[eventID - 1] << "\t" << Tz1[eventID - 1]
-            << "\t" << Tx2[eventID - 1] << "\t" << Ty2[eventID - 1] << "\t" << Tz2[eventID - 1] << endl;
-            outputFile3 << eventID << "\t" << T1[eventID - 1] << "\t" << T2[eventID - 1] << endl;
+        //     outputFile4 << eventID << "\t" << Tx1[eventID - 1] << "\t" << Ty1[eventID - 1] << "\t" << Tz1[eventID - 1]
+        //     << "\t" << Tx2[eventID - 1] << "\t" << Ty2[eventID - 1] << "\t" << Tz2[eventID - 1] << endl;
+        //     outputFile3 << eventID << "\t" << T1[eventID - 1] << "\t" << T2[eventID - 1] << endl;
 
 
 
-        }
+        // }
 
         photonCoords1.clear();
         photonCoords2.clear();
@@ -288,17 +288,17 @@ SteppingAction::~SteppingAction()
         outputFile2.close();
     }
 
-    if (outputFile3.is_open()) {
-        outputFile3.close();
-    }
+    // if (outputFile3.is_open()) {
+    //     outputFile3.close();
+    // }
 
-    if (outputFile4.is_open()) {
-        outputFile4.close();
-    }
+    // if (outputFile4.is_open()) {
+    //     outputFile4.close();
+    // }
 
-    if (binaryOutputFile.is_open()) {
-        binaryOutputFile.close();
-    }
+    // if (binaryOutputFile.is_open()) {
+    //     binaryOutputFile.close();
+    // }
 
     
 

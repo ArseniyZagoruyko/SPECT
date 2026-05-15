@@ -1,1 +1,7 @@
 /build
+/.cache
+/.vscode
+/.ropeproject
+/.venv
+__pycache__/
+*.pyc

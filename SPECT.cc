@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
     QGSP_BIC* pl = new QGSP_BIC;
     G4OpticalPhysics* OpticalPhysics = new G4OpticalPhysics;
-    pl->RegisterPhysics(OpticalPhysics);
+    // pl->RegisterPhysics(OpticalPhysics);
     pl->RegisterPhysics(new G4ParallelWorldPhysics(paraWorldName));
     // pl->RegisterPhysics(new G4EmLowEPPhysics());
     run->SetUserInitialization(pl);
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     }
 
 
-    int number = 1 + 0*static_cast<int>(G4UniformRand() * 1000);
+    int number = 1000 + 0*static_cast<int>(G4UniformRand() * 1000);
     UImanager->ApplyCommand("/run/beamOn " + std::to_string(number));
 
     delete ui;
